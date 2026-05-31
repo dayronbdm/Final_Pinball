@@ -86,21 +86,28 @@ public class Flipper : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (leftFlipperPressed)
+        if (hingeJointLeft != null)
         {
-            hingeJointLeft.spring = jointSpringPressed;
+            if (leftFlipperPressed)
+            {
+                hingeJointLeft.spring = jointSpringPressed;
+            }
+            else
+            {
+                hingeJointLeft.spring = jointSpringReleased;
+            }
         }
-        else
+
+        if (hingeJointRight != null)
         {
-            hingeJointLeft.spring = jointSpringReleased;
-        }
-        if (rightFlipperPressed)
-        {
-            hingeJointRight.spring = jointSpringPressed;
-        }
-        else
-        {
-            hingeJointRight.spring = jointSpringReleased;
+            if (rightFlipperPressed)
+            {
+                hingeJointRight.spring = jointSpringPressed;
+            }
+            else
+            {
+                hingeJointRight.spring = jointSpringReleased;
+            }
         }
     }
 }

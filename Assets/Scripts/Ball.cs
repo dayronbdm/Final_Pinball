@@ -88,7 +88,7 @@ public class Ball : MonoBehaviour
             }
 
             GameObject[] balls = GameObject.FindGameObjectsWithTag("Ball");
-            if (balls.Length <= 1)
+            if (balls.Length <= 1) 
             { 
                 Game.Instance.SpawnBall();
             }

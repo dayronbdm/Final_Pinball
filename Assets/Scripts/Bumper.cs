@@ -89,7 +89,7 @@ public class Bumper : MonoBehaviour
     {
         soundBumper.Play();
         collision.collider.GetComponent<Rigidbody>().AddExplosionForce(7000f, transform.position, 8);
-        Game.Instance.IncreaseScore(1500);
+        Game.Instance.IncreaseScore(10);
         light.enabled = true;
         timeLeftLightShine = 0.2f;
     }

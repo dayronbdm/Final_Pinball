@@ -99,7 +99,7 @@ public class Circle : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         soundCircle.Play();
-        Game.Instance.IncreaseScore(300);
+        Game.Instance.IncreaseScore(5);
         lightValue = 6000;
     }
 }

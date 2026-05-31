@@ -84,7 +84,7 @@ public class Person : MonoBehaviour
         if (timeleftFalling==0)
         {
             soundScream.Play();
-            Game.Instance.IncreaseScore(250);
+            Game.Instance.IncreaseScore(20);
             timeleftFalling = 4;
             animator.Play("Fall", 1, 0);
             animator.SetLayerWeight(1, 1);

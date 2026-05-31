@@ -3,18 +3,28 @@ using UnityEngine;
 
 public class Game : MonoBehaviour
 {
-
-
     public static Game Instance; 
     [SerializeField] GameObject pfBall;
-    private Vector3 startPosition = new Vector3(5.9f, 41.5f, -59.1f); // Aligned with circles and bumpers
+    private Vector3 startPosition = new Vector3(5.9f, 41.5f, -59.1f);
     public GameObject PfBall { get => pfBall; set => pfBall = value; }
+
+    [Header("Score Settings")]
+    [SerializeField] private int targetScore = 300;
     private int score, currentScore;
+    private bool gameWon = false;
+
+    [Header("UI References")]
     [SerializeField] TextMeshProUGUI textScore;
+    [SerializeField] TextMeshProUGUI winScoreText;
+    [SerializeField] GameObject winPanel;
+    [SerializeField] GameObject leftPanel;
+    [SerializeField] GameObject rightPanel;
+    [SerializeField] GameObject pinballObject;
+
+    [Header("Audio")]
     [SerializeField] AudioSource soundPoints;
     
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
         Instance = this;
@@ -26,28 +36,95 @@ public class Game : MonoBehaviour
 
         if (textScore == null)
         {
-            textScore = FindAnyObjectByType<TextMeshProUGUI>();
+            var go = GameObject.Find("CanvasGame/Panel/TextScore");
+            if (go != null) textScore = go.GetComponent<TextMeshProUGUI>();
+        }
+
+        if (winPanel == null)
+        {
+            var canvas = GameObject.Find("CanvasGame");
+            if (canvas != null)
+            {
+                var t = canvas.transform.Find("WinPanel");
+                if (t != null) winPanel = t.gameObject;
+            }
         }
     }
+
     private void Start() 
     {
+        Time.timeScale = 1; 
         Physics.gravity = new Vector3(0, -50, 0);
         SpawnBall();
-        
+        UpdateScoreDisplay();
     }
 
     public void IncreaseScore(int amount)
     {
+        if (gameWon) return;
+
         if (soundPoints != null)
         {
             soundPoints.Play();
         }
         score += amount;
+        Debug.Log("Score increased by " + amount + ". Total: " + score + "/" + targetScore);
+
+        if (score >= targetScore)
+        {
+            score = targetScore;
+            WinGame();
+        }
     }
 
-    // Update is called once per frame
+    private void WinGame()
+    {
+        Debug.Log("WIN CONDITION REACHED!");
+        gameWon = true;
+        
+        if (winPanel != null)
+        {
+            winPanel.SetActive(true);
+        }
+        else
+        {
+            Debug.LogError("WinPanel reference is missing in Game script!");
+        }
+
+        // Destroy requested objects
+        if (leftPanel != null) Destroy(leftPanel);
+        if (rightPanel != null) Destroy(rightPanel);
+        if (pinballObject != null) Destroy(pinballObject);
+
+        // Also destroy any remaining balls
+        GameObject[] balls = GameObject.FindGameObjectsWithTag("Ball");
+        foreach (var ball in balls)
+        {
+            Destroy(ball);
+        }
+
+        currentScore = score;
+        UpdateScoreDisplay();
+        
+        Time.timeScale = 0; 
+    }
+
+    private void UpdateScoreDisplay()
+    {
+        if (textScore != null)
+        {
+            textScore.text = currentScore + " / " + targetScore;
+        }
+        if (winScoreText != null)
+        {
+            winScoreText.text = "Score: " + currentScore + " / " + targetScore;
+        }
+    }
+
     void Update()
     {
+        if (gameWon) return;
+
         if (currentScore < score)
         {
             currentScore += (int)(1000 * Time.deltaTime);
@@ -55,22 +132,19 @@ public class Game : MonoBehaviour
             {
                 currentScore = score;
             }
-
-            if (textScore != null)
-            {
-                textScore.text = currentScore.ToString("00000000");
-            }
-        }else
+            UpdateScoreDisplay();
+        }
+        else
         {
-            if (soundPoints != null)
+            if (soundPoints != null && soundPoints.isPlaying && score == currentScore)
             {
                 soundPoints.Stop();
             }
         }
     }
+
     public void SpawnBall()
     {
-       // Vector3(5.9000001,41.5029984,-59.368) 
-       Instantiate(pfBall, startPosition, Quaternion.identity);
+        Instantiate(pfBall, startPosition, Quaternion.identity);
     }
 }
